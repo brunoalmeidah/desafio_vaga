@@ -34,7 +34,7 @@ export function Pagination({
             variant="outline"
             className="h-8 w-8 p-0"
             disabled={page === 1}
-            onClick={() => onPageChange(0)}
+            onClick={() => onPageChange(1)}
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>

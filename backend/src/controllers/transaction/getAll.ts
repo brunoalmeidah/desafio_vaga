@@ -4,7 +4,6 @@ import { Request, Response } from "express";
 export async function getAll(req: Request, res: Response) {
   const { startDate, endDate, page, customer } = req.query;
   const getAllTransactionsService = makeGetAllTransactionsService();
-  console.log({ startDate, endDate, page, customer })
   const result = await getAllTransactionsService.execute({
     startDate: startDate?.toString() ?? "",
     endDate: endDate?.toString() ?? "",

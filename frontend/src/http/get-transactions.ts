@@ -39,7 +39,6 @@ export async function getTransactions({
         }),
       })
       .json<GetTransactionResponse>();
-      console.log('result',result)
     return result;
   } catch (error) {
     console.log(error);

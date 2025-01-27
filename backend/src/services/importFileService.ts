@@ -22,7 +22,7 @@ export class ImportFileService {
   constructor(private transactionRepository: ITransactionRepository, private customerRepository: ICustomerRepository) {}
   
   async execute(file?: Express.Multer.File): Promise<{ timeExportation: number }>  {
-    console.log(file)
+
     if(!file) return { timeExportation: 0 }
     const filePath = resolve(__dirname, "..", "..", file?.path ?? "");
     const start = performance.now();
@@ -61,19 +61,10 @@ export class ImportFileService {
       });
   
       rl.on("close", () => {
-        console.log("Leitura do arquivo concluída.");
         resolve({ transactions, customers });
       });
     });
-    /*const customersDocumentsChunked = chunk(Object.keys(customers), 100);
   
-    const customersFromDatabase = (
-      await Promise.all(
-        customersDocumentsChunked.map((item) =>
-          this.customerRepository.findManyByDocuments(item)
-        )
-      )
-    ).flatMap((item) => item);*/
     const customersFromDatabase = await this.customerRepository.findManyByDocuments(Object.keys(customers))
 
     customersFromDatabase.forEach((item) => {
@@ -83,34 +74,12 @@ export class ImportFileService {
     
     await this.customerRepository.createMany(customersToCreate)
 
-   /* const customersToCreateChunked = chunk(
-      customersToCreate.map((item) => item.document),
-      100
-    );
   
-    const customersCreated = (
-      await Promise.all(
-        customersToCreateChunked.map((item) =>
-          this.customerRepository.findManyByDocuments(item)
-        )
-      )
-    ).flatMap((item) => item);*/
 
     const customersCreated = await this.customerRepository.findManyByDocuments(customersToCreate.map((item) => item.document))
     customersCreated.forEach((item) => {
       customers[item.document].id = item._id.toString();
     });
-  
-    /*const transactionsChunked = chunk(transactions, 100);
-  
-    const transactionsExists = (
-      await Promise.all(
-        transactionsChunked.map((item) =>
-          this.transactionRepository.findManyByIds(item.map((item) => item.id))
-        )
-      )
-    ).flatMap((item) => item);
-  */
 
     const transactionsExists = await this.transactionRepository.findManyByIds(transactions.map((item) => item.id))
     const transactionsExistsTransformed: { [index: string]: boolean } = {};

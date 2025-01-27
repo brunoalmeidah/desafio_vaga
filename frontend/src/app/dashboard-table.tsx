@@ -56,7 +56,6 @@ export function DashboardTable({ initialData }: IProps) {
 
   async function handleFilter(data: IFilterData | null) {
     setFilter(data);
-    console.log(data)
     handleFetch({ _filter: data, _page: page });
   }
 
