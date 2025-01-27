@@ -6,15 +6,44 @@ import {
 } from "./interfaces/ITransactionRepository";
 
 export class TransactionRepository implements ITransactionRepository {
-  async findAll(data: IFindAllProps): Promise<{data: ITransactionDocument[], total: number}> {
-    const transactions = await Transaction.find(
-      { date: { $gte: data.startDate, $lte: data.endDate } },
-      {},
-      { skip: data.skip, limit: data.limit }
-    );
-    const total = await Transaction.countDocuments({ date: { $gte: data.startDate, $lte: data.endDate } });
-    
-    return { data: transactions, total};
+  async findAll(
+    data: IFindAllProps
+  ): Promise<{ rows: ITransactionDocument[]; count: number }> {
+    const pipelinesAggregate = [
+      {
+        $lookup: {
+          from: "customers",
+          localField: "customer",
+          foreignField: "_id",
+          as: "customer",
+        },
+      },
+      { $unwind: "$customer" },
+      {
+        $match: {
+          ...(data.startDate && data.endDate
+            ? { date: { $gte: data.startDate, $lte: data.endDate } }
+            : {}),
+          customer: { $ne: null },
+          ...(data.customer
+            ? { "customer.name": { $regex: data.customer } }
+            : {}),
+        },
+      },
+    ];
+    const transactions = await Transaction.aggregate([
+      ...pipelinesAggregate,
+      { $sort: { date: -1 } },
+      { $skip: data.skip },
+      { $limit: data.limit },
+    ]);
+
+    const [firstRow] = await Transaction.aggregate([
+      ...pipelinesAggregate,
+      { $count: "count" },
+    ]);
+
+    return { rows: transactions, count: firstRow?.count ?? 0 };
   }
   async findManyByIds(id: string[]): Promise<ITransactionDocument[]> {
     const transactions = await Transaction.find({ transactionId: { $in: id } });

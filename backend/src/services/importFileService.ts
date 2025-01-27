@@ -22,6 +22,7 @@ export class ImportFileService {
   constructor(private transactionRepository: ITransactionRepository, private customerRepository: ICustomerRepository) {}
   
   async execute(file?: Express.Multer.File): Promise<{ timeExportation: number }>  {
+    console.log(file)
     if(!file) return { timeExportation: 0 }
     const filePath = resolve(__dirname, "..", "..", file?.path ?? "");
     const start = performance.now();
@@ -125,7 +126,7 @@ export class ImportFileService {
       transactionId: item.id,
       date: dayjs(item.date).toDate(),
       value: +item.value,
-      customerId: customers[item.customer.document].id ?? "",
+      customer: customers[item.customer.document].id ?? "",
     })));
   
     const end = performance.now();

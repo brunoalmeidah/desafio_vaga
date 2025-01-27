@@ -2,12 +2,14 @@ import { makeGetAllTransactionsService } from "@/services/factories/makeGetAllTr
 import { Request, Response } from "express";
 
 export async function getAll(req: Request, res: Response) {
-  const { startDate, endDate, page } = req.query;
+  const { startDate, endDate, page, customer } = req.query;
   const getAllTransactionsService = makeGetAllTransactionsService();
+  console.log({ startDate, endDate, page, customer })
   const result = await getAllTransactionsService.execute({
     startDate: startDate?.toString() ?? "",
     endDate: endDate?.toString() ?? "",
+    customer: customer?.toString() ?? "",
     page: page?.toString() ?? "",
   });
-  res.status(200).json({data: result});
+  res.status(200).json(result);
 }

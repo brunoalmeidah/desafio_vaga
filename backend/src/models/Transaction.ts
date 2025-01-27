@@ -1,7 +1,7 @@
 import { model, Schema, Types } from "mongoose";
 interface ITransaction {
   transactionId: string;
-  customerId: Types.ObjectId;
+  customer: Types.ObjectId;
   date: Date;
   value: number;
 }
@@ -13,7 +13,7 @@ const transactionSchema = new Schema<ITransactionDocument>(
     transactionId: { type: String, required: true, unique: true },
     date: { type: Date, required: true },
     value: { type: Number, required: true },
-    customerId: { type: Schema.Types.ObjectId, ref: 'Customer' }
+    customer: { type: Schema.Types.ObjectId, ref: 'Customer' }
   }
 );
 
